@@ -1,44 +1,49 @@
 # 🏪 Casa do 20 - Vitrine Digital de Alta Performance
 
-Este projeto substitui o catálogo nativo do ERP Hiper por uma vitrine digital moderna, de alta performance e focada em conversão para a loja **Casa do 20**. O objetivo é oferecer uma experiência de compra "App-Like" otimizada para dispositivos móveis, com integração direta para vendas via WhatsApp.
+Este projeto representa a evolução da experiência de compra para a **Casa do 20**. Substituímos o catálogo estático e limitado por uma vitrine digital moderna, ultra-rápida (App-Like) e otimizada para conversão via WhatsApp.
 
 ---
 
-## 🎯 Situação Atual e Motivação do Projeto
+## 🎯 Visão do Produto e Diferenciais
 
-O projeto foi desenvolvido para transformar a experiência de compra digital da Casa do 20:
+O ecossistema foi desenhado para eliminar fricções no processo de venda:
 
-1.  **Velocidade e Conversão**: Uma interface rápida e intuitiva que direciona o cliente para a finalização do pedido diretamente no WhatsApp do vendedor.
-2.  **Sincronização ERP**: Integração em tempo real com o **ERP Hiper** para preços e estoques, garantindo que a vitrine reflita sempre a realidade do estoque.
-3.  **Curadoria de Imagens**: Após testes intensivos com automação via IA para 5.000 produtos, o projeto evoluiu para um modelo de **curadoria assistida**, priorizando a qualidade visual da vitrine sobre a quantidade automatizada.
+1.  **Experiência App-Like**: Interface fluida, inspirada em aplicativos nativos (Amazon, Westwing), garantindo navegação instantânea em dispositivos móveis.
+2.  **Conversão via WhatsApp**: Checkout inteligente que gera uma mensagem estruturada com itens, preços e links, direcionando o cliente diretamente para o fechamento com o vendedor.
+3.  **Sincronização Inteligente com ERP Hiper**: Integração em tempo real de preços e estoques, com lógica de "Ponto de Sincronização" para economia de dados e latência mínima.
+4.  **Curadoria de Imagens (Usina de IA)**: Em vez de buscas genéricas na internet, utilizamos o **Gemini 2.0 Flash** para extrair imagens oficiais de catálogos PDF com precisão cirúrgica.
 
-## 🛠️ Stack de Tecnologias
+## 🛠️ Stack Tecnológica
 
-A arquitetura garante performance, escalabilidade e segurança:
+A arquitetura foi escolhida para garantir escala e performance extrema:
 
-*   **Frontend**: Next.js 15 (App Router), Tailwind CSS e Shadcn UI.
-*   **Backend**: Route Handlers (Next.js) atuando como BFF para orquestrar chamadas seguras.
-*   **Banco de Dados & Storage**: Supabase (PostgreSQL) e Supabase Storage para imagens em formato `.webp` otimizado.
-*   **Integração ERP**: API REST do **ERP Hiper** para dados de produtos e estoque.
-*   **Inteligência Artificial**: Google Gemini API (utilizado na validação e processamento de informações).
+*   **Framework**: [Next.js 15](https://nextjs.org/) (App Router) para SSR e performance otimizada.
+*   **Design System**: Tailwind CSS + Shadcn UI (Customizado para "Casa do 20").
+*   **Inteligência Artificial**: [Google Gemini 2.0 Flash](https://deepmind.google/technologies/gemini/) (Visão Computacional e Extração de Dados em PDFs).
+*   **Backend & DB**: [Supabase](https://supabase.com/) (PostgreSQL + Storage) para persistência e gestão de ativos digitais.
+*   **Processamento de Imagem**: [Sharp](https://sharp.pixelplumbing.com/) para compressão WebP e geração de Perceptual Hash (Deduplicação).
+*   **Integração ERP**: API REST do ERP Hiper (ms-ecommerce).
 
-## 🏗️ Arquitetura e Engenharia de Software
+## 🏗️ Arquitetura de Software
 
-### 1. Sincronização com ERP Hiper
-*   **Segurança**: Comunicação backend-to-backend centralizada, protegendo chaves de acesso.
-*   **Ponto de Sincronização**: Preparado para atualizações diferenciais, reduzindo latência e consumo de dados.
+### 1. Camada de Dados (BFF)
+O Next.js atua como um Backend-for-Frontend (BFF), orquestrando chamadas seguras para a API do Hiper e o Supabase, protegendo tokens e chaves sensíveis.
 
-### 2. Gestão de Imagens e Vitrine
-*   **Processamento de Imagens**: Motor Sharp para conversão e otimização em WebP, garantindo carregamento instantâneo.
-*   **Abordagem de Curadoria**: O sistema privilegia a fidelidade visual. Produtos sem imagem processada utilizam um placeholder premium, mantendo a estética da loja enquanto a curadoria manual ou assistida é realizada nos itens prioritários.
+### 2. Usina de IA de Catálogos
+Um sistema proprietário que:
+*   Processa PDFs de fornecedores em alta resolução.
+*   Usa Gemini Vision para detectar produtos, preços e códigos (EAN/Ref).
+*   Aplica o **Modo Radical** de vinculação, exigindo alta confiança (EAN match ou preço < 35% de divergência).
 
-### 3. Foco em Experiência do Usuário (UX)
-*   **Checkout via WhatsApp**: Ao finalizar o carrinho, o sistema gera uma mensagem estruturada com os itens, preços e links, facilitando o fechamento imediato.
-*   **Design Mobile-First**: Interface inspirada em apps nativos de grandes players (Amazon, Westwing), focada na facilidade de uso em celulares.
+### 3. Gestão de Ativos
+Imagens são processadas, recortadas com padding de segurança e servidas em formato WebP otimizado via Supabase Storage.
 
 ---
 
-## 📄 Relatórios Técnicos
-Para detalhes sobre os desafios de automação e análise de viabilidade de dados, consulte:
-- [Relatório Técnico: Inteligência Artificial na Usina de Vendas](./RELATORIO_TECNICO_USINA_IA.md)
-# ecommercec20
+## 📄 Documentação Técnica Detalhada
+
+Para uma visão aprofundada sobre os desafios de automação e a engenharia por trás do banco de imagens:
+- [Relatório Técnico: Usina de IA e Viabilidade](./RELATORIO_TECNICO_USINA_IA.md)
+
+---
+*Desenvolvido com foco em performance e experiência do usuário (UX).*
