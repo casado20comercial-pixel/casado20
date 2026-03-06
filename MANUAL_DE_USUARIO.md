@@ -2,7 +2,7 @@
 
 Bem-vindo à sua nova Vitrine Digital! Este guia foi feito para ajudar você a navegar e aproveitar ao máximo todas as funcionalidades da plataforma.
 
-**Link de Acesso**: [https://ecommercec20.vercel.app/](https://ecommercec20.vercel.app/)
+**Link de Acesso**: [https://casado20.vercel.app/](https://casado20.vercel.app/)
 
 ---
 
@@ -43,7 +43,7 @@ O sistema não exige cadastro ou cartão de crédito. Ao finalizar, ele abrirá 
 
 ## ⚙️ 4. Área Administrativa (Sincronização)
 
-**Link de Acesso**: [https://ecommercec20.vercel.app/admin/upload](https://ecommercec20.vercel.app/admin/upload)
+**Link de Acesso**: [https://casado20.vercel.app/admin/upload](https://casado20.vercel.app/admin/upload)
 
 Para manter os preços e produtos sempre iguais ao seu sistema de loja (Hiper):
 
