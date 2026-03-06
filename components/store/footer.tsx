@@ -1,6 +1,6 @@
 "use client"
 
-import { Facebook, Instagram, Twitter, MessageCircle } from "lucide-react"
+import { Instagram, MessageCircle } from "lucide-react"
 import Image from "next/image"
 
 export function Footer() {
@@ -30,22 +30,13 @@ export function Footer() {
               <MessageCircle className="w-6 h-6" />
             </a>
             <a
-              href="#"
+              href="https://www.instagram.com/casado20itz"
+              target="_blank"
+              rel="noopener noreferrer"
               className="text-primary-foreground hover:text-secondary transition-colors"
-            >
-              <Facebook className="w-6 h-6" />
-            </a>
-            <a
-              href="#"
-              className="text-primary-foreground hover:text-secondary transition-colors"
+              title="Siga-nos no Instagram"
             >
               <Instagram className="w-6 h-6" />
-            </a>
-            <a
-              href="#"
-              className="text-primary-foreground hover:text-secondary transition-colors"
-            >
-              <Twitter className="w-6 h-6" />
             </a>
           </div>
         </div>
