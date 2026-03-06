@@ -1,0 +1,23 @@
+﻿sim, não precisaria ser todos os produtos ou todos os catálogos né,
+
+vai ter catálogo realmente, mas maioria tem tá,
+
+maioria tem pelo menos o produto e o código e assim,
+
+pela descrição do produto é a mesma do catálogo,
+
+aqui vem na nota é a mesma do catálogo viu e a que vem
+
+no mesmo que não tenha o código que vem no catálogo é o mesmo que vem na nota,
+
+então pelo código ou pela descrição daria para alimentar, viu aí a gente só tem que ver...
+
+aí essa questão de de criar esse banco de imagens só para ir já já alimentando o sistema,
+
+mesmo que não seja de forma automática,
+
+mas a gente tendo as imagens dos catálogos a gente consegue
+
+pelo menos ir alimentando de forma manual caso a gente tenha,
+
+caso o sistema não identifique.

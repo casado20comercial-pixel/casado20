@@ -1,0 +1,31 @@
+[
+    {
+        "id": "3e09a20d-de4b-4731-8489-5da37908f376",
+        "nome": "GLB030 - LUMINARIA DE ACRILICO, ACONDICIONADO EM CAIXA CONTENDO 50 PECAS POR CAIXA.",
+        "codigoDeBarras": "6913410821049",
+        "codigo": 8183,
+        "ncm": "9405.21.00",
+        "preco": 25,
+        "quantidadeEmEstoque": 137,
+        "categoria": "UTILIDADE DOMÉSTICAS",
+        "categoriaDoProdutoId": "c388051d-9430-4541-ab05-6e7b7c0aa027",
+        "marca": null,
+        "descricao": null,
+        "unidade": "PECAS",
+        "imagem": null,
+        "imagensAdicionais": [],
+        "peso": 0,
+        "altura": 0,
+        "largura": 0,
+        "comprimento": 0,
+        "cor": "",
+        "tamanho": "",
+        "ativo": true,
+        "removido": false,
+        "grade": false,
+        "variacao": null,
+        "variacaoAtiva": true,
+        "atacadoAtivo": false,
+        "precoAtacado": null
+    }
+]

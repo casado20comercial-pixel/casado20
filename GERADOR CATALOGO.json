@@ -1,0 +1,127 @@
+{
+  "name": "GERADOR CATALOGO",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "/extract-catalog2",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -240,
+        160
+      ],
+      "id": "169fe941-d862-4750-98a9-248fc6d4350f",
+      "name": "API",
+      "webhookId": "8f0eff48-7306-455d-b33d-21e06c4f5c7a"
+    },
+    {
+      "parameters": {
+        "resource": "document",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "text": "Você é um especialista em extração visual de dados com foco em processamento exaustivo de documentos. Sua tarefa é analisar todas as páginas do arquivo fornecido e extrair absolutamente todos os produtos sem deixar nenhum para trás.\n\nREGRAS\n1. Realize uma varredura completa em cada página. Garanta que a transição entre páginas não cause a perda de nenhum item.\n2. Localize o nome do produto, o preço e o código de referência conhecido como Ref ID.\n3. O Ref ID pode estar posicionado em qualquer local próximo ao produto. Identifique padrões de códigos alfanuméricos ou sequências numéricas.\n4. Mesmo que o termo ESGOTADO esteja presente, você deve obrigatoriamente extrair o preço numérico original associado ao produto. Não ignore o valor nem o defina como zero caso o preço esteja visível no documento.\n5. O nome do produto deve conter todos os detalhes extras como medidas e cores.\n\nINSTRUÇÕES DE VARREDURA\nCertifique se de percorrer o documento do início ao fim. Verifique cada canto da página para encontrar produtos que possam estar em layouts não convencionais. A extração deve ser total e sem omissões. O fato de um item estar marcado como esgotado não deve impedir a coleta de seu valor monetário.\n\nSAÍDA OBRIGATÓRIA\nRetorne apenas um array JSON puro com todos os produtos de todas as páginas. Não inclua explicações ou comentários.\n\n[{\"product_name\": \"Nome\", \"ref_id\": \"ID\", \"price\": 0.00, \"box_2d\": [0,0,0,0]}]",
+        "inputType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        -32,
+        160
+      ],
+      "id": "4b123ed8-6c67-4abb-9242-d0f67f36988c",
+      "name": "Analisa Documento",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "tnHMC9pTAZ8fOQ03",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Acessa o primeiro item da entrada\nconst input = items[0].json;\n\n// De acordo com seu ultimo print, o caminho e content -> parts[0] -> text\nconst contentParts = input.content && input.content.parts;\n\nif (!contentParts || !contentParts[0] || !contentParts[0].text) {\n    return { \n        error: \"Caminho do texto nao localizado na estrutura do Gemini\", \n        estrutura_recebida: input \n    };\n}\n\nconst rawText = contentParts[0].text;\n\n// Remove marcadores de markdown caso existam\nconst cleanText = rawText.replace(/```json|```/g, \"\").trim();\n\nlet productsArray = [];\ntry {\n    productsArray = JSON.parse(cleanText);\n} catch (e) {\n    return { \n        error: \"Falha ao converter string para JSON\", \n        texto_limpo: cleanText,\n        erro_original: e.message \n    };\n}\n\n// Retorna os itens formatados para o n8n\nreturn productsArray.map(product => {\n    return {\n        json: {\n            product_name: product.product_name,\n            ref_id: product.ref_id,\n            price: product.price,\n            box_2d: product.box_2d,\n            extracted_at: new Date().toISOString()\n        }\n    };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        304,
+        160
+      ],
+      "id": "0a3a47a9-a2a9-46f7-a632-b858d4f6daf0",
+      "name": "Trata os dados para o front"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{\n  {\n    \"extracted_data\": $items().map(item => item.json)\n  }\n}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        560,
+        160
+      ],
+      "id": "80aec3f5-b4e6-47c5-b4f2-30d192dffa4a",
+      "name": "Resposta para o front"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "API": {
+      "main": [
+        [
+          {
+            "node": "Analisa Documento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analisa Documento": {
+      "main": [
+        [
+          {
+            "node": "Trata os dados para o front",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trata os dados para o front": {
+      "main": [
+        [
+          {
+            "node": "Resposta para o front",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "83a0744e-159a-4c55-a799-ca8b23c64a57",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a2a2d83e8b47b66867987a185b5765c0ffc76c6b0a74d3daaba38ed5a0d5d479"
+  },
+  "id": "oKwL3wLJ9KmiYxaN",
+  "tags": []
+}
