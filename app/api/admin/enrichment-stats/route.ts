@@ -75,10 +75,11 @@ export async function GET(req: Request) {
         });
 
     } catch (error: any) {
-        console.error('[STATS] Error:', error);
+        console.error('[STATS] Fatal Error:', error);
         return NextResponse.json({
             success: false,
-            error: error.message
+            error: error.message || 'Unknown database error',
+            details: error
         }, { status: 500 });
     }
 }

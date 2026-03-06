@@ -119,11 +119,11 @@ export class ImageMatchService {
             if (productSpecs.dimension && candSpecs.dimension && productSpecs.dimension !== candSpecs.dimension) continue;
             if (productSpecs.isKit !== candSpecs.isKit) continue;
 
-            // 🚫 TRAVA RADICAL 2: Divergência de Preço Severa (35%)
-            // Se o preço for muito diferente, o match é cancelado, a menos que o EAN batesse.
+            // 🚫 TRAVA RADICAL 2: Divergência de Preço (RELAXADA para Migração)
+            // Na migração entre empresas, os preços podem variar drasticamente (ex: atacado vs varejo)
             if (product.price && cand.price) {
-                const priceDiff = Math.abs(product.price - cand.price) / product.price;
-                if (priceDiff > 0.35) continue;
+                const priceDiff = Math.abs(product.price - cand.price) / (product.price || 1);
+                if (priceDiff > 0.95) continue; // Só trava se a diferença for absurda (95%)
             }
 
             const candTokens = this.getTokens(cand.name);
@@ -158,8 +158,8 @@ export class ImageMatchService {
                 reasons.push(`Ref OK: ${cand.ref_id}`);
             }
 
-            // Critério de Aceitação: Mínimo 70 agora para ser SUPER radical
-            if (score > highestScore && score >= 70) {
+            // Critério de Aceitação: Mínimo 45 para ser AGRESSIVO na migração
+            if (score > highestScore && score >= 45) {
                 highestScore = score;
                 bestMatch = {
                     productId: product.id,
@@ -223,14 +223,19 @@ export class ImageMatchService {
             const match = await this.findMatchForProduct(product, allBankImages);
 
             if (match) {
-                await supabaseAdmin.from('products').update({ image_url: match.imageUrl }).eq('id', product.id);
-                await supabaseAdmin.from('product_images').insert({
+                console.log(`[RECONCILE] Linking ${product.id} to ${match.imageUrl}`);
+                const { error: upError } = await supabaseAdmin.from('products').update({ image_url: match.imageUrl }).eq('id', product.id);
+                if (upError) console.error(`[RECONCILE] Update Error for ${product.id}:`, upError.message);
+
+                const { error: insError } = await supabaseAdmin.from('product_images').insert({
                     sku: product.id,
                     ean: product.ean || null,
                     image_url: match.imageUrl,
                     is_primary: true,
-                    source: 'manual_upload'
+                    source: 'manual'
                 });
+                if (insError) console.error(`[RECONCILE] Insert Error for ${product.id}:`, insError.message);
+
                 matchesFound++;
                 onProgress?.(`✨ [VINCULADO] ${product.name} (Score: ${match.score})`);
             }

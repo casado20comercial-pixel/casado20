@@ -40,10 +40,43 @@ Imagens são processadas, recortadas com padding de segurança e servidas em for
 
 ---
 
-## 📄 Documentação Técnica Detalhada
+## ⚙️ Configuração e Variáveis de Ambiente
 
-Para uma visão aprofundada sobre os desafios de automação e a engenharia por trás do banco de imagens:
-- [Relatório Técnico: Usina de IA e Viabilidade](./RELATORIO_TECNICO_USINA_IA.md)
+Crie um arquivo `.env.local` na raiz com as seguintes chaves:
+
+### Supabase (Banco e Storage)
+- `NEXT_PUBLIC_SUPABASE_URL`: URL do projeto Supabase.
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Chave Anon (cliente).
+- `SUPABASE_SERVICE_ROLE_KEY`: Chave secreta Admin (para o BFF e Matcher).
+
+### Integração ERP (Hiper)
+- `HIPER_API_URL`: URL base da API ms-ecommerce.
+- `HIPER_APP_TOKEN`: Token de segurança/sincronização do Hiper.
+
+### Inteligência Artificial
+- `GOOGLE_GENERATIVE_AI_API_KEY`: Chave da API do Gemini (AI de Visão).
 
 ---
-*Desenvolvido com foco em performance e experiência do usuário (UX).*
+
+## 🚀 Como Rodar o Projeto
+
+1.  Instale as dependências: `npm install`
+2.  Inicie o servidor de desenvolvimento: `npm run dev`
+3.  Acesse: `http://localhost:3000`
+
+## 🔄 Sincronização de Dados (Manual)
+
+O sistema utiliza um espelhamento de banco de dados para garantir performance. Sempre que um novo produto for adicionado ou alterado no **ERP Hiper**, é necessário realizar a sincronização manual para que ele apareça na vitrine:
+
+1.  Acesse a área administrativa: `/admin/upload`
+2.  Clique no botão **"Sync ERP"**.
+3.  Aguarde a confirmação de que os dados foram importados para o Supabase.
+
+---
+
+## 📄 Documentação Técnica Detalhada
+
+- [Relatório Técnico: Usina de IA e Lógica de Match](./RELATORIO_TECNICO_USINA_IA.md)
+
+---
+*Projeto finalizado para entrega ao cliente.*

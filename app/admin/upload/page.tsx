@@ -85,10 +85,6 @@ export default function AdminPage() {
     const [bankPage, setBankPage] = useState(1)
     const [bankTotal, setBankTotal] = useState(0)
 
-    // Mining State
-    const [showMiningModal, setShowMiningModal] = useState(false)
-    const [miningUrl, setMiningUrl] = useState("")
-    const [isMining, setIsMining] = useState(false)
 
     const fetchStats = async () => {
         setStatsLoading(true)
@@ -199,52 +195,6 @@ export default function AdminPage() {
         if (activeTab === "bank") fetchBank(bankPage)
     }
 
-    const handleStartMining = async () => {
-        if (!miningUrl) return
-        setEnriching(true)
-        setIsMining(true)
-        setProgress(0)
-        setEnrichLogs([`🕵️ Iniciando mineração no site do fornecedor...`])
-        setShowMiningModal(false)
-
-        try {
-            const res = await fetch("/api/admin/mining", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ url: miningUrl, provider: 'qhouse' })
-            })
-
-            if (!res.body) throw new Error("Sem feedback do servidor")
-            const reader = res.body.getReader()
-            const decoder = new TextDecoder()
-            let accumulated = ""
-
-            while (true) {
-                const { done, value } = await reader.read()
-                if (done) break
-                accumulated += decoder.decode(value, { stream: true })
-                const lines = accumulated.split("\n")
-                accumulated = lines.pop() || ""
-
-                for (const line of lines) {
-                    if (!line.trim()) continue
-                    try {
-                        const data = JSON.parse(line)
-                        if (data.type === "progress") setEnrichLogs(prev => [data.message, ...prev.slice(0, 100)])
-                        else if (data.type === "complete") setEnrichLogs(prev => [`✨ Mineração concluída!`, ...prev])
-                        else if (data.type === "error") setEnrichLogs(prev => [`❌ Erro na mineração: ${data.message}`, ...prev])
-                    } catch (e) { console.error("Error parsing log:", e) }
-                }
-            }
-        } catch (err: any) {
-            setEnrichLogs(prev => [`❌ Erro crítico: ${err.message}`, ...prev])
-        } finally {
-            setEnriching(false)
-            setIsMining(false)
-            fetchStats()
-            if (activeTab === "bank") fetchBank(bankPage)
-        }
-    }
 
     const handleSyncCatalog = async () => {
         setIsSyncing(true)
@@ -506,14 +456,6 @@ export default function AdminPage() {
                                         >
                                             <FileUp className="w-4 h-4" />
                                             Extrair PDF
-                                        </Button>
-                                        <Button
-                                            onClick={() => setShowMiningModal(true)}
-                                            disabled={enriching}
-                                            className="h-12 px-8 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-black text-xs uppercase tracking-widest gap-3 shadow-xl shadow-amber-500/20"
-                                        >
-                                            <Globe className="w-4 h-4" />
-                                            Minerar Web
                                         </Button>
                                     </div>
                                 </div>
@@ -809,51 +751,6 @@ export default function AdminPage() {
                     </DialogContent>
                 </Dialog>
 
-                {/* --- MODAL DE MINERAÇÃO WEB --- */}
-                <Dialog open={showMiningModal} onOpenChange={setShowMiningModal}>
-                    <DialogContent className="sm:max-w-xl rounded-3xl border-none shadow-2xl">
-                        <DialogHeader>
-                            <DialogTitle className="text-2xl font-black text-slate-900 flex items-center gap-3">
-                                <div className="bg-amber-500 p-2 rounded-xl">
-                                    <Globe className="w-6 h-6 text-white" />
-                                </div>
-                                Mineração Direta (Scraping)
-                            </DialogTitle>
-                            <DialogDescription className="text-slate-500 font-medium pt-2">
-                                Insira a URL da categoria do site do fornecedor (ex: QHouse) para minerar fotos e referências técnicas.
-                            </DialogDescription>
-                        </DialogHeader>
-
-                        <div className="space-y-4 py-6">
-                            <div className="space-y-2">
-                                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">URL da Categoria</Label>
-                                <input
-                                    type="text"
-                                    placeholder="https://www.qhouseloja.com.br/acessorios-mobilia-c10"
-                                    className="w-full bg-slate-50 border-slate-200 rounded-2xl py-4 px-4 text-sm focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition-all font-medium"
-                                    value={miningUrl}
-                                    onChange={(e) => setMiningUrl(e.target.value)}
-                                />
-                            </div>
-                            <div className="p-4 bg-blue-50 rounded-2xl border border-blue-100">
-                                <p className="text-[10px] text-blue-600 font-bold leading-relaxed">
-                                    💡 Dica: Use URLs de categorias específicas para resultados mais rápidos e precisos. O motor irá extrair fotos em alta resolução vinculadas ao EAN e Referência.
-                                </p>
-                            </div>
-                        </div>
-
-                        <DialogFooter>
-                            <Button
-                                onClick={handleStartMining}
-                                disabled={!miningUrl || isMining}
-                                className="w-full h-14 bg-slate-900 hover:bg-black text-white font-black uppercase tracking-widest rounded-2xl shadow-xl transition-all active:scale-95 gap-3"
-                            >
-                                {isMining && <Loader2 className="w-4 h-4 animate-spin" />}
-                                Iniciar Mineração Nuclear
-                            </Button>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
 
                 {/* --- DIALOG DE GERENCIAMENTO DE FOTOS --- */}
                 <Dialog open={!!selectedProductForPhotos} onOpenChange={(open) => !open && setSelectedProductForPhotos(null)}>
