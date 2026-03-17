@@ -180,11 +180,17 @@ Exemplo: [{"product_name": "Nome", "ref_id": "QH-3921", "ncm": "8302.20.00", "pr
 
                 return JSON.parse(text);
             } catch (error: any) {
-                if (error.status === 429) {
-                    console.warn(`⚠️ Rate limit (15 RPM) atingido. Aguardando 30 segundos para limpar a cota...`);
-                    await new Promise(res => setTimeout(res, 30000));
+                const isRetryable = error.status === 429 || error.status === 503 || error.status === 500;
+
+                if (isRetryable && retries > 0) {
+                    const waitTime = error.status === 429 ? 30000 : 10000;
+                    console.warn(`⚠️ Erro ${error.status} (Google Overload/Limit). Tentando novamente em ${waitTime/1000}s... (Tentativas restantes: ${retries - 1})`);
+                    
+                    await new Promise(res => setTimeout(res, waitTime));
                     retries--;
+                    continue;
                 } else {
+                    console.error(`[Gemini] Erro fatal na API:`, error.message);
                     throw error;
                 }
             }
@@ -268,12 +274,44 @@ Exemplo: [{"product_name": "Nome", "ref_id": "QH-3921", "ncm": "8302.20.00", "pr
                 model_version: 'gemini-flash-latest'
             });
 
-            if (dbError) {
-                if (dbError.code === '23505') { // Unique violation (Deduplicação)
-                    console.log(`[BANK] Imagem duplicada detectada (pHash). Ignorando.`);
+            // --- BLOCO PARA VINCULAR AO PRODUTO REAL ---
+            console.log(`[LINK] Tentando vincular ${extracted.ref_id} à vitrine...`);
+
+            const updatePayload = { 
+                image_url: publicUrl,
+                image: publicUrl,
+                enriched: true,
+                price: extracted.price > 0 ? extracted.price : undefined,
+                updated_at: new Date().toISOString()
+            };
+
+            const { data: updatedEan, error: eanErr } = await supabaseAdmin
+                .from('products')
+                .update(updatePayload)
+                .eq('ean', extracted.ref_id)
+                .select('id');
+
+            if (eanErr || !updatedEan || updatedEan.length === 0) {
+                const { data: updatedRef } = await supabaseAdmin
+                    .from('products')
+                    .update(updatePayload)
+                    .eq('ref', extracted.ref_id)
+                    .select('id');
+
+                if (updatedRef && updatedRef.length > 0) {
+                    console.log(`[LINK] ✅ Sucesso: Vinculado via coluna 'ref' ao produto ${extracted.ref_id}`);
                 } else {
-                    throw dbError;
+                    console.warn(`[LINK] ⚠️ Aviso: Imagem salva, mas nenhum produto encontrado com o código ${extracted.ref_id} no banco.`);
                 }
+            } else {
+                console.log(`[LINK] ✅ Sucesso: Vinculado via coluna 'ean' ao produto ${extracted.ref_id}`);
+            }
+            // -------------------------------------------------------
+
+            if (dbError && dbError.code === '23505') {
+                console.log(`[BANK] Imagem visualmente duplicada (pHash). Ignorando registro no banco de imagens.`);
+            } else if (dbError) {
+                throw dbError;
             }
 
             return publicUrl;
